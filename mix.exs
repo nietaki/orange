@@ -3,11 +3,18 @@ defmodule Orange.MixProject do
 
   def project do
     [
+      aliases: aliases(),
       app: :orange,
-      version: "0.1.0",
+      deps: deps(),
+      docs: docs(),
       elixir: "~> 1.6",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      package: package(),
+      preferred_cli_env: [coveralls: :test, "coveralls.html": :test, test: :test],
+      source_url: "https://github.com/nietaki/orange",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      test_coverage: [tool: ExCoveralls],
+      version: "0.1.0"
     ]
   end
 
@@ -21,8 +28,44 @@ defmodule Orange.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:excoveralls, "~> 0.4", only: :test},
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false}
+    ]
+  end
+
+  defp elixirc_paths(env) when is_atom(env), do: ["lib"]
+
+  defp package do
+    [
+      licenses: ["Apache License 2.0"],
+      maintainers: ["Jacek Królikowski <hello@nietaki.com>"],
+      links: %{
+        "GitHub" => "https://github.com/nietaki/orange"
+      },
+      description: description()
+    ]
+  end
+
+  defp description do
+    """
+    Orange is a library for more powerful ranges than the Elixir language
+    offers. Includes ranges operating on floating and decimal values,
+    non-default step values and creating ranges over custom data types.
+    """
+  end
+
+  defp aliases do
+    []
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_url: "https://github.com/nietaki/orange",
+      extras: ["README.md"],
+      assets: ["assets"]
+      # logo: "assets/orange.png"
     ]
   end
 end
