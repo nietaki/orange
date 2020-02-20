@@ -1,5 +1,6 @@
 defmodule Orange.Range do
   @enforce_keys [:start, :stop, :step]
+
   # TODO open closed ends
 
   defstruct @enforce_keys
