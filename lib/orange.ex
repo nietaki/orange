@@ -1,18 +1,7 @@
 defmodule Orange do
-  @moduledoc """
-  Documentation for Orange.
-  """
+  alias Orange.Range
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Orange.hello
-      :world
-
-  """
-  def hello do
-    :world
+  def range(start, stop, step) do
+    %Range{start: start, stop: stop, step: step}
   end
 end

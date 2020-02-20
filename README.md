@@ -1,21 +1,12 @@
 # Orange
 
-**TODO: Add description**
+An advanced ranges library in the making
 
-## Installation
+## Planned work
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `orange` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:orange, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/orange](https://hexdocs.pm/orange).
+- [x] initial implementation on integers
+- [ ] property test the integer implementation
+- [ ] implement optional Enumerable protocol functions
+- [ ] add support for floats
+- [ ] plan more
 
