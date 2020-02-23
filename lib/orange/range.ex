@@ -58,19 +58,19 @@ defimpl Enumerable, for: Orange.Range do
 
   def count(_range) do
     # TODO fast implementation
-    IO.puts("Range.count")
+    # IO.puts("Range.count")
     {:error, __MODULE__}
   end
 
   def member?(_range, _element) do
     # TODO fast implementation
-    IO.puts("Range.member?")
+    # IO.puts("Range.member?")
     {:error, __MODULE__}
   end
 
   def slice(_range) do
     # TODO fast implementation
-    IO.puts("Range.slice")
+    # IO.puts("Range.slice")
     {:error, __MODULE__}
   end
 end

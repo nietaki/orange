@@ -26,9 +26,10 @@ defmodule Orange.MixProject do
 
   defp deps do
     [
-      {:excoveralls, "~> 0.4", only: :test},
-      {:ex_doc, "~> 0.18", only: :dev},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false}
+      {:excoveralls, "~> 0.4", optional: true, only: :test},
+      {:ex_doc, "~> 0.18", optional: true, only: :dev},
+      {:mix_test_watch, "~> 0.5", optional: true, only: :dev, runtime: false},
+      {:propcheck, "~> 1.1", only: [:dev, :test]}
     ]
   end
 
