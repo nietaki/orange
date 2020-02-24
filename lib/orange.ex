@@ -2,7 +2,7 @@ defmodule Orange do
   alias Orange.Range
 
   def range(start, stop, step) do
-    %Range{start: start, stop: stop, step: step}
+    Range.range(start, stop, step)
   end
 
   def for_loop(init, condition, afterthought)

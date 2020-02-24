@@ -13,21 +13,59 @@ defmodule Orange.Range do
         }
 
   @typedoc false
-  @type direction :: :up | :down
+  @type sgn :: :lt | :eq | :gt
 
   @typedoc false
+  @typep direction :: sgn
   @type progress :: {next_idx :: integer(), range :: t(), direction()}
+
+  @doc false
+  def direction(%__MODULE__{start: start, stop: stop, step: step}) do
+    range_sgn = sgn(stop - start)
+    step_sgn = sgn(step)
+
+    case {range_sgn, step_sgn} do
+      {_, :eq} ->
+        raise ArgumentError, message: "step can't be 0"
+
+      {:eq, sgn} ->
+        # bounds are the same, the step has a direction
+        sgn
+
+      {sgn, sgn} ->
+        # bounds and the step agree
+        sgn
+
+      {_, _} ->
+        # bounds and the step disagree, empty range
+        :eq
+    end
+  end
+
+  defp sgn(i) when is_integer(i) do
+    case i do
+      i when i > 0 ->
+        :gt
+
+      i when i < 0 ->
+        :lt
+
+      _ ->
+        :eq
+    end
+  end
+
+  def range(start, stop, step) do
+    ret = %__MODULE__{start: start, stop: stop, step: step}
+    # checking the step is valid
+    direction(ret)
+    ret
+  end
 end
 
 defimpl Enumerable, for: Orange.Range do
   def reduce(range, acc_tuple, fun) do
-    direction =
-      case range.step do
-        # blowing up on step == 0
-        step when step > 0 -> :up
-        step when step < 0 -> :down
-      end
-
+    direction = Orange.Range.direction(range)
     do_reduce({0, range, direction}, acc_tuple, fun)
   end
 
@@ -45,10 +83,10 @@ defimpl Enumerable, for: Orange.Range do
     value = range.start + next_idx * range.step
 
     case {direction, value, range.stop} do
-      {:up, value, stop} when value <= stop ->
+      {:gt, value, stop} when value <= stop ->
         do_reduce({next_idx + 1, range, direction}, fun.(value, acc), fun)
 
-      {:down, value, stop} when value >= stop ->
+      {:lt, value, stop} when value >= stop ->
         do_reduce({next_idx + 1, range, direction}, fun.(value, acc), fun)
 
       _ ->
@@ -59,6 +97,7 @@ defimpl Enumerable, for: Orange.Range do
   def count(_range) do
     # TODO fast implementation
     # IO.puts("Range.count")
+    # {:ok, div(range.stop - range.start, range.step)}
     {:error, __MODULE__}
   end
 

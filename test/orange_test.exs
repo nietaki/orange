@@ -3,6 +3,14 @@ defmodule OrangeTest do
   use PropCheck, default_opts: [numtests: 1000]
   doctest Orange
 
+  describe "build" do
+    test "can't build a range with a 0 step" do
+      assert_raise ArgumentError, fn ->
+        Orange.range(1, 10, 0)
+      end
+    end
+  end
+
   describe "range |> Enum.to_list()" do
     test "a sample case" do
       rng = Orange.range(3, 5, 1)
@@ -19,6 +27,24 @@ defmodule OrangeTest do
       assert Enum.to_list(rng) == [5, 4, 3]
     end
 
+    test "when the range goes up and the step goes down" do
+      rng = Orange.range(3, 5, -1)
+      # Enum.reduce(rng, fn e, _ -> IO.inspect(e) end)
+      assert Enum.to_list(rng) == []
+    end
+
+    test "when the range goes down and the step goes up" do
+      rng = Orange.range(-3, -5, 1)
+      # Enum.reduce(rng, fn e, _ -> IO.inspect(e) end)
+      assert Enum.to_list(rng) == []
+    end
+
+    test "one-element inclusive range" do
+      rng = Orange.range(0, 0, 1)
+      # Enum.reduce(rng, fn e, _ -> IO.inspect(e) end)
+      assert Enum.to_list(rng) == [0]
+    end
+
     property "gives the same results as a built-in range in simple cases", [:verbose] do
       forall {a, b} <- {small_int(), small_int()} do
         step =
@@ -33,10 +59,13 @@ defmodule OrangeTest do
     end
 
     property "enumerated gives the same results as a for_loop", [:verbose] do
-      forall range <- non_infinite_range() do
-        f = range_to_for_loop(range)
-        Enum.to_list(range) == Enum.to_list(f)
-      end
+      timeout(
+        100,
+        forall range <- non_infinite_range() do
+          f = range_to_for_loop(range)
+          Enum.to_list(range) == Enum.to_list(f)
+        end
+      )
     end
   end
 
@@ -134,8 +163,12 @@ defmodule OrangeTest do
     oneof([integer(), integer(-magnitude, magnitude)])
   end
 
+  def non_zero_integer() do
+    such_that(i <- integer(), when: i != 0)
+  end
+
   def non_infinite_range() do
-    let {a, b, step} <- {small_int(), small_int(), integer(1, :inf)} do
+    let {a, b, step} <- {small_int(), small_int(), non_zero_integer()} do
       step =
         if b >= a do
           step
@@ -148,13 +181,29 @@ defmodule OrangeTest do
   end
 
   def range_to_for_loop(range) do
-    condition =
-      if range.stop >= range.start do
-        fn value -> value <= range.stop end
-      else
-        fn value -> value >= range.stop end
-      end
+    range_sign = sign(range.stop - range.start)
+    step_sign = sign(range.step)
 
-    Orange.for_loop(range.start, condition, &(&1 + range.step))
+    if range_sign * step_sign == -1 do
+      []
+    else
+      condition =
+        cond do
+          range.stop > range.start ->
+            fn value -> value <= range.stop end
+
+          range.stop < range.start ->
+            fn value -> value >= range.stop end
+
+          true ->
+            fn value -> value == range.stop end
+        end
+
+      Orange.for_loop(range.start, condition, &(&1 + range.step))
+    end
   end
+
+  defp sign(number) when number > 0, do: 1
+  defp sign(number) when number < 0, do: -1
+  defp sign(0), do: 0
 end
